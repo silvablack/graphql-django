@@ -1,4 +1,4 @@
-# graphql-django
+# Graphql Django Vuejs
 Projeto de integração - Django - GraphQL - Vue.js
 
 Backend: Django 2.2.4
