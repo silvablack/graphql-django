@@ -1,17 +1,39 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Empresas />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import apolloClient from './providers/graphql'
+import Empresas from './components/Empresas'
+import gql from 'graphql-tag'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    Empresas
+  },
+  data: function() {
+    return {
+      empresas: ''
+    }
+  },
+  methods: {
+    async getEmpresas() {
+      const res = await apolloClient.query({
+        query: gql`
+          query getEmpresas {
+            empresas {
+              codigo
+              descricao
+            }
+          }
+        `
+      })
+      this.empresas = res.data.empresas
+    }
   }
 }
 </script>
