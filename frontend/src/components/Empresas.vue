@@ -1,13 +1,16 @@
 <template>
   <div class="listEmpresa">
     <div v-for="item in empresas" :key="item.id">
-      <h3>{{ item.codigo }} - {{ item.descricao }} <a href="#" @click="editEmpresa">Editar</a> - <a href="#" @click="deleteEmpresa(item)">Excluir</a></h3>
+      <h3>{{ item.codigo }} - {{ item.descricao }} <a href="#" @click="loadFormEmpresa(item)">Editar</a> - <a href="#" @click="deleteEmpresa(item)">Excluir</a></h3>
     </div>
 
     <div class="addEmpresa">
       <input v-model="empresa.codigo" placeholder="Código" />
       <input v-model="empresa.descricao" placeholder="Descrição" />
-      <h3><a href="#" @click="addEmpresa">Adicionar Empresa</a> </h3>
+      <h3>
+        <a v-if="create" href="#" @click="addEmpresa">Adicionar Empresa</a>
+        <a v-if="edit" href="#" @click="editEmpresa">Atualizar Empresa</a> 
+      </h3>
     </div>
   </div>
 </template>
@@ -20,11 +23,14 @@ export default {
   name: 'Empresas',
   data: function() {
     return {
+      create: true,
+      edit: false,
       empresas: [],
       empresa: {
         id: '',
         codigo: '',
-        descricao: ''
+        descricao: '',
+        ativo: ''
       }
     }
   },
@@ -40,6 +46,7 @@ export default {
               id
               codigo
               descricao
+              ativo
             }
           }
         `
@@ -76,8 +83,37 @@ export default {
       })
       this.empresas.pop(index)
     },
-    editEmpresa() {
-
+    loadFormEmpresa(empresa) {
+      this.empresa = empresa
+      this.create = false
+      this.edit = true
+    },
+    async editEmpresa() {
+      const res = await apolloClient.mutate({
+        mutation: gql`
+          mutation updateEmpresa($id: ID!, $descricao: String!, $codigo: Int!, $ativo: Boolean!) {
+            updateEmpresa(id: $id, input: {
+              descricao: $descricao
+              codigo: $codigo
+              ativo: $ativo
+              }) {
+              ok
+              empresa{
+                id
+                descricao
+                codigo
+                ativo
+              }
+            }
+          }
+        `,
+        variables: {
+          id: this.empresa.id,
+          descricao: this.empresa.descricao,
+          codigo: this.empresa.codigo,
+          ativo: this.empresa.ativo
+        }
+      })
     },
     async addEmpresa() {
       const res = await apolloClient.mutate({
