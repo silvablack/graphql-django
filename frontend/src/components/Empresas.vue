@@ -68,10 +68,13 @@ export default {
         variables: {
           id: empresa.id,
           descricao: empresa.descricao,
-          codigo: empresa.codigo,
-          ativo: empresa.ativo
+          codigo: empresa.codigo
         }
       })
+      const index = this.empresas.find((element, index)=>{
+        return element.id == empresa.id ? index : false
+      })
+      this.empresas.pop(index)
     },
     editEmpresa() {
 
