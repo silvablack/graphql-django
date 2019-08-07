@@ -1,10 +1,12 @@
 <template>
-  <div class="empresa">
+  <div class="listEmpresa">
     <div v-for="item in empresas" :key="item.id">
       <h3>{{ item.codigo }} - {{ item.descricao }} <a href="#" @click="editEmpresa">Editar</a> - <a href="#" @click="deleteEmpresa">Excluir</a></h3>
     </div>
 
-    <div>
+    <div class="addEmpresa">
+      <input v-model="empresa.codigo" placeholder="Código" />
+      <input v-model="empresa.descricao" placeholder="Descrição" />
       <h3><a href="#" @click="addEmpresa">Adicionar Empresa</a> </h3>
     </div>
   </div>
@@ -18,7 +20,11 @@ export default {
   name: 'Empresas',
   data: function() {
     return {
-      empresas: ''
+      empresas: [],
+      empresa: {
+        codigo: '',
+        descricao: ''
+      }
     }
   },
   mounted() {
@@ -38,24 +44,36 @@ export default {
       })
       this.empresas = res.data.empresas
     },
-    async deleteEmpresa() {
-      const res = await apolloClient.query({
-        query: gql`
-          query getEmpresas {
-            empresas {
-              codigo
-              descricao
-            }
-          }
-        `
-      })
-      this.empresas = res.data.empresas
+    deleteEmpresa() {
+      
     },
     editEmpresa() {
 
     },
-    addEmpresa() {
-
+    async addEmpresa() {
+      const res = await apolloClient.mutate({
+        mutation: gql`
+          mutation createEmpresa($descricao: String!, $codigo: Int!) {
+            createEmpresa(input: {
+              codigo: $codigo
+              descricao: $descricao
+            }) {
+              ok
+              empresa {
+                codigo
+                descricao
+              }
+            }
+          }
+        `,
+        variables: {
+          codigo: this.empresa.codigo,
+          descricao: this.empresa.descricao
+        }
+      })
+      this.empresas.push(res.data.createEmpresa.empresa) 
+      this.empresa.codigo = null
+      this.empresa.descricao = null
     }
   }
 }
@@ -63,6 +81,17 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.listEmpresa {
+  width: 100%;
+  margin: 5px;
+}
+.addEmpresa {
+  width: 100%;
+  margin: 10px;
+  border: 1px solid #000;
+  padding: 10px;
+  border-radius: 5px 5px 5px;
+}
 h3 {
   margin: 40px 0 0;
 }
