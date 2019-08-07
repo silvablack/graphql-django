@@ -1,13 +1,17 @@
 import graphene
+from graphene import relay
 from graphene_django.types import DjangoObjectType, ObjectType
 from .models import *
-
+from graphene_django.filter import DjangoFilterConnectionField
+from django.db.models import Q
 # Definicao das Types
 
 
 class EmpresaType(DjangoObjectType):
     class Meta:
         model = Empresa
+        filter_fields = ['descricao', 'codigo', 'ativo']
+        interfaces = (relay.Node, )
 
 
 class FilialType(DjangoObjectType):
@@ -58,7 +62,8 @@ class Query(ObjectType):
         return None
 
     def resolve_empresas(self, info, **kwargs):
-        return Empresa.objects.all()
+        filter = (Q(ativo__exact=True))
+        return Empresa.objects.filter(filter)
 
     def resolve_filial(self, info, **kwargs):
         id = kwargs.get('id')
@@ -69,7 +74,8 @@ class Query(ObjectType):
         return None
 
     def resolve_filiais(self, info, **kwargs):
-        return Filial.objects.all()
+        filter = (Q(ativo__exact=True))
+        return Filial.objects.filter(filter)
 
     def resolve_setor(self, info, **kwargs):
         id = kwargs.get('id')
@@ -80,7 +86,8 @@ class Query(ObjectType):
         return None
 
     def resolve_setores(self, info, **kwargs):
-        return Setor.objects.all()
+        filter = (Q(ativo__exact=True))
+        return Setor.objects.filter(filter)
 
     def resolve_cargo(self, info, **kwargs):
         id = kwargs.get('id')
@@ -91,7 +98,8 @@ class Query(ObjectType):
         return None
 
     def resolve_cargos(self, info, **kwargs):
-        return Cargo.objects.all()
+        filter = (Q(ativo__exact=True))
+        return Cargo.objects.filter(filter)
 
     def resolve_funcionario(self, info, **kwargs):
         id = kwargs.get('id')
@@ -102,7 +110,8 @@ class Query(ObjectType):
         return None
 
     def resolve_funcionarios(self, info, **kwargs):
-        return Funcionario.objects.all()
+        filter = (Q(ativo__exact=True))
+        return Funcionario.objects.filter(filter)
 
 
 # Definicação dos Inputs
