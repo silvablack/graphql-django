@@ -1,8 +1,6 @@
 import graphene
-from graphene import relay
 from graphene_django.types import DjangoObjectType, ObjectType
 from .models import *
-from graphene_django.filter import DjangoFilterConnectionField
 from django.db.models import Q
 # Definicao das Types
 
@@ -10,8 +8,6 @@ from django.db.models import Q
 class EmpresaType(DjangoObjectType):
     class Meta:
         model = Empresa
-        filter_fields = ['descricao', 'codigo', 'ativo']
-        interfaces = (relay.Node, )
 
 
 class FilialType(DjangoObjectType):
@@ -38,19 +34,19 @@ class FuncionarioType(DjangoObjectType):
 
 class Query(ObjectType):
 
-    empresa = graphene.Field(EmpresaType, id=graphene.Int())
+    empresa = graphene.Field(EmpresaType, id=graphene.ID())
     empresas = graphene.List(EmpresaType)
 
-    filial = graphene.Field(FilialType, id=graphene.Int())
+    filial = graphene.Field(FilialType, id=graphene.ID())
     filiais = graphene.List(FilialType)
 
-    cargo = graphene.Field(CargoType, id=graphene.Int())
+    cargo = graphene.Field(CargoType, id=graphene.ID())
     cargos = graphene.List(CargoType)
 
-    setor = graphene.Field(SetorType, id=graphene.Int())
+    setor = graphene.Field(SetorType, id=graphene.ID())
     setores = graphene.List(SetorType)
 
-    funcionario = graphene.Field(FuncionarioType, id=graphene.Int())
+    funcionario = graphene.Field(FuncionarioType, id=graphene.ID())
     funcionarios = graphene.List(FuncionarioType)
 
     def resolve_empresa(self, info, **kwargs):
@@ -116,13 +112,14 @@ class Query(ObjectType):
 
 # Definicação dos Inputs
 class EmpresaInput(graphene.InputObjectType):
-    id = graphene.ID
+    id = graphene.ID()
     codigo = graphene.Int()
     descricao = graphene.String()
+    ativo = graphene.Boolean()
 
 
 class FilialInput(graphene.InputObjectType):
-    id = graphene.ID
+    id = graphene.ID()
     codigo = graphene.Int()
     descricao = graphene.String()
     cnpj = graphene.String()
@@ -130,21 +127,21 @@ class FilialInput(graphene.InputObjectType):
 
 
 class CargoInput(graphene.InputObjectType):
-    id = graphene.ID
+    id = graphene.ID()
     codigo = graphene.Int()
     descricao = graphene.String()
     cbo = graphene.Int()
 
 
 class SetorInput(graphene.InputObjectType):
-    id = graphene.ID
+    id = graphene.ID()
     codigo = graphene.Int()
     descricao = graphene.String()
     empresa = graphene.List(EmpresaInput)
 
 
 class FuncionarioInput(graphene.InputObjectType):
-    id = graphene.ID
+    id = graphene.ID()
     matricula = graphene.Int()
     cpf = graphene.String()
     nome = graphene.String()
@@ -174,7 +171,7 @@ class CreateEmpresa(graphene.Mutation):
 
 class UpdateEmpresa(graphene.Mutation):
     class Arguments:
-        id = graphene.Int(required=True)
+        id = graphene.ID(required=True)
         input = EmpresaInput(required=True)
 
     ok = graphene.Boolean()
@@ -188,6 +185,7 @@ class UpdateEmpresa(graphene.Mutation):
             ok = True
             empresa_instance.codigo = input.codigo
             empresa_instance.descricao = input.descricao
+            empresa_instance.ativo = input.ativo
             empresa_instance.save()
             return UpdateEmpresa(ok=ok, empresa=empresa_instance)
         return UpdateEmpresa(ok=ok, empresa=None)

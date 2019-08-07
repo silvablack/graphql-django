@@ -1,7 +1,7 @@
 <template>
   <div class="listEmpresa">
     <div v-for="item in empresas" :key="item.id">
-      <h3>{{ item.codigo }} - {{ item.descricao }} <a href="#" @click="editEmpresa">Editar</a> - <a href="#" @click="deleteEmpresa">Excluir</a></h3>
+      <h3>{{ item.codigo }} - {{ item.descricao }} <a href="#" @click="editEmpresa">Editar</a> - <a href="#" @click="deleteEmpresa(item)">Excluir</a></h3>
     </div>
 
     <div class="addEmpresa">
@@ -22,6 +22,7 @@ export default {
     return {
       empresas: [],
       empresa: {
+        id: '',
         codigo: '',
         descricao: ''
       }
@@ -36,6 +37,7 @@ export default {
         query: gql`
           query getEmpresas {
             empresas {
+              id
               codigo
               descricao
             }
@@ -44,8 +46,32 @@ export default {
       })
       this.empresas = res.data.empresas
     },
-    deleteEmpresa() {
-      
+    async deleteEmpresa(empresa) {
+      const res = await apolloClient.mutate({
+        mutation: gql`
+          mutation updateEmpresa($id: ID!, $descricao: String!, $codigo: Int!) {
+            updateEmpresa(id: $id, input: {
+              descricao: $descricao
+              codigo: $codigo
+              ativo: false
+              }) {
+              ok
+              empresa{
+                id
+                descricao
+                codigo
+                ativo
+              }
+            }
+          }
+        `,
+        variables: {
+          id: empresa.id,
+          descricao: empresa.descricao,
+          codigo: empresa.codigo,
+          ativo: empresa.ativo
+        }
+      })
     },
     editEmpresa() {
 
