@@ -132,6 +132,7 @@ class FilialInput(graphene.InputObjectType):
     descricao = graphene.String()
     cnpj = graphene.String()
     empresa = graphene.List(EmpresaInput)
+    ativo = graphene.Boolean()
 
 
 class CargoInput(graphene.InputObjectType):
@@ -209,15 +210,9 @@ class CreateFilial(graphene.Mutation):
     @staticmethod
     def mutate(root, info, input=None):
         ok = True
-        filiais = []
-        for filial_input in input.filiais:
-            filial = Filial.objects.get(pk=filial_input.id)
-            if filial is None:
-                return CreateFilial(ok=False, filial=None)
-            filiais.append(filial)
-        filial_instance = Filial(codigo=input.codigo, descricao=input.descricao, cnpj=input.cnpj)
+        empresa = Empresa.objects.get(pk=input.empresa[0].id)
+        filial_instance = Filial(codigo=input.codigo, descricao=input.descricao, cnpj=input.cnpj, empresa=empresa)
         filial_instance.save()
-        filial_instance.filiais.set(filiais)
         return CreateFilial(ok=ok, filial=filial_instance)
 
 

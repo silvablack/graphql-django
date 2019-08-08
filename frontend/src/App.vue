@@ -14,26 +14,6 @@ export default {
   name: 'app',
   components: {
     Empresas
-  },
-  data: function() {
-    return {
-      empresas: ''
-    }
-  },
-  methods: {
-    async getEmpresas() {
-      const res = await apolloClient.query({
-        query: gql`
-          query getEmpresas {
-            empresas {
-              codigo
-              descricao
-            }
-          }
-        `
-      })
-      this.empresas = res.data.empresas
-    }
   }
 }
 </script>
