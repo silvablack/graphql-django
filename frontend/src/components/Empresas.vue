@@ -1,7 +1,7 @@
 <template>
   <div class="listEmpresa">
     <div v-for="item in empresas" :key="item.id">
-      <h3>{{ item.codigo }} - {{ item.descricao }} <a href="#" @click="loadFormEmpresa(item)">Editar</a> - <a href="#" @click="deleteEmpresa(item)">Excluir</a></h3>
+      <h3>{{ item.id }} - {{ item.descricao }} <a href="#" @click="loadFormEmpresa(item)">Editar</a> - <a href="#" @click="deleteEmpresa(item)">Excluir</a></h3>
     </div>
 
     <div class="addEmpresa">
