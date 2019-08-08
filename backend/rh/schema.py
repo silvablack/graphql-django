@@ -35,7 +35,7 @@ class FuncionarioType(DjangoObjectType):
 class Query(ObjectType):
 
     empresa = graphene.Field(EmpresaType, id=graphene.ID())
-    empresas = graphene.List(EmpresaType)
+    empresas = graphene.List(EmpresaType, first=graphene.Int(), skip=graphene.Int())
 
     filial = graphene.Field(FilialType, id=graphene.ID())
     filiais = graphene.List(FilialType)
@@ -57,9 +57,17 @@ class Query(ObjectType):
 
         return None
 
-    def resolve_empresas(self, info, **kwargs):
+    def resolve_empresas(self, info, skip=None, first=None, **kwargs):
         filter = (Q(ativo__exact=True))
-        return Empresa.objects.filter(filter)
+        empresas = Empresa.objects.filter(filter)
+
+        if skip:
+            empresas = empresas[skip:]
+
+        if first:
+            empresas = empresas[:first]
+
+        return empresas
 
     def resolve_filial(self, info, **kwargs):
         id = kwargs.get('id')
@@ -238,34 +246,6 @@ class UpdateFilial(graphene.Mutation):
             filial_instance.filiais.set(filial)
             return UpdateFilial(ok=ok, movie=filial_instance)
         return UpdateFilial(ok=ok, movie=None)
-
-
-    #
-    # codigo = graphene.Int()
-    # descricao = graphene.String()
-    # cnpj = graphene.String()
-    # empresa = graphene.List(EmpresaInput)
-
-
-# class UpdateFuncionario(graphene.Mutation):
-#     class Arguments:
-#         input = FuncionarioInput(required=True)
-#     ok = graphene.Boolean()
-#     funcionario = graphene.Field(FuncionarioType)
-#
-#     @staticmethod
-#     def mutate(root, info, id, input=None):
-#         ok = True
-#         funcionarios = []
-#         for funcionario_input in input.funcionarios:
-#             funcionario = Funcionario.objects.get(pk=id)
-#             if funcionario is None:
-#                 return UpdateFuncionario(ok=False, funcionario=None)
-#             funcionarios.append(funcionario)
-#
-#         funcionario_instance = Funcionario(
-#             nome=input.nome
-#         )
 
 
 class Mutation(graphene.ObjectType):
