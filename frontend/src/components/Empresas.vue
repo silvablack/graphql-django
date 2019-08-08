@@ -1,10 +1,10 @@
 <template>
-  <div class="listEmpresa">
+  <div class="list-empresa">
     <div v-for="item in empresas" :key="item.id">
       <h3>{{ item.id }} - {{ item.descricao }} <a href="#" @click="loadFormEmpresa(item)">Editar</a> - <a href="#" @click="deleteEmpresa(item)">Excluir</a></h3>
     </div>
 
-    <div class="addEmpresa">
+    <div class="add-empresa">
       <div class="input">
       <input v-model="empresa.codigo" placeholder="Código" />
       </div>
@@ -150,14 +150,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.listEmpresa {
+.list-empresa {
   width: 100%;
   margin: 5px;
 }
 .input{
   margin:5px;
 }
-.addEmpresa {
+.add-empresa {
   width: 100%;
   margin: 10px;
   border: 1px solid #000;
