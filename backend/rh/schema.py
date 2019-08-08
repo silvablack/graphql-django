@@ -211,6 +211,8 @@ class CreateFilial(graphene.Mutation):
     def mutate(root, info, input=None):
         ok = True
         empresa = Empresa.objects.get(pk=input.empresa[0].id)
+        if empresa is None:
+            return CreateFilial(ok=False, filial=None)
         filial_instance = Filial(codigo=input.codigo, descricao=input.descricao, cnpj=input.cnpj, empresa=empresa)
         filial_instance.save()
         return CreateFilial(ok=ok, filial=filial_instance)
@@ -218,7 +220,7 @@ class CreateFilial(graphene.Mutation):
 
 class UpdateFilial(graphene.Mutation):
     class Arguments:
-        id = graphene.Int(required=True)
+        id = graphene.ID(required=True)
         input = FilialInput(required=True)
 
     ok = graphene.Boolean()
@@ -228,19 +230,20 @@ class UpdateFilial(graphene.Mutation):
     def mutate(root, info, id, input=None):
         ok = False
         filial_instance = Filial.objects.get(pk=id)
-        if filial_instance:
-            ok = True
-            filiais = []
-        for filial_input in input.filiais:
-            filial = Filial.objects.get(pk=filial_input.id)
-            if filial is None:
-                return UpdateFilial(ok=False, filial=None)
-            filiais.append(filial)
-            filial_instance.title = input.title
-            filial_instance.year = input.yearce.save()
-            filial_instance.filiais.set(filial)
-            return UpdateFilial(ok=ok, movie=filial_instance)
-        return UpdateFilial(ok=ok, movie=None)
+        if filial_instance is None:
+            return UpdateFilial(ok=False, filial=None)
+
+        empresa = Empresa.objects.get(pk=input.empresa[0].id)
+        if empresa is None:
+            return UpdateFilial(ok=False, filial=None)
+
+        filial_instance.codigo = input.codigo
+        filial_instance.cnpj = input.cnpj
+        filial_instance.descricao = input.descricao
+        filial_instance.empresa = empresa
+        filial_instance.ativo = input.ativo
+        filial_instance.save()
+        return UpdateFilial(ok=ok, filial=filial_instance)
 
 
 class Mutation(graphene.ObjectType):

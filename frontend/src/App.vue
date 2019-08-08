@@ -2,18 +2,21 @@
   <div id="app">
     <img alt="Vue logo" style="width:100px" src="./assets/logo.png">
     <Empresas />
+    <Filiais />
   </div>
 </template>
 
 <script>
 import apolloClient from './providers/graphql'
 import Empresas from './components/Empresas'
+import Filiais from './components/Filiais'
 import gql from 'graphql-tag'
 
 export default {
   name: 'app',
   components: {
-    Empresas
+    Empresas,
+    Filiais
   }
 }
 </script>

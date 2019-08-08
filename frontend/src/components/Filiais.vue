@@ -1,19 +1,31 @@
 <template>
-  <div class="listEmpresa">
-    <div v-for="item in empresas" :key="item.id">
-      <h3>{{ item.codigo }} - {{ item.descricao }} <a href="#" @click="loadFormEmpresa(item)">Editar</a> - <a href="#" @click="deleteEmpresa(item)">Excluir</a></h3>
+  <div class="list-filial">
+    <div v-for="item in filiais" :key="item.id">
+      <h3>{{ item.id }} - {{ item.descricao }} - {{item.empresa.descricao}} <a href="#" @click="loadFormFilial(item)">Editar</a> - <a href="#" @click="deleteFilial(item)">Excluir</a></h3>
     </div>
 
-    <div class="addEmpresa">
+    <div class="add-filial">
       <div class="input">
-      <input v-model="empresa.codigo" placeholder="Código" />
+      <input v-model="filial.codigo" placeholder="Código" />
       </div>
       <div class="input">
-      <input v-model="empresa.descricao" placeholder="Descrição" />
+      <input v-model="filial.cnpj" placeholder="CNPJ" />
+      </div>
+      <div class="input">
+      <input v-model="filial.descricao" placeholder="Descrição" />
+      </div>
+      <div class="input">
+      <input v-model="filial.empresa.id" placeholder="Empresa ID" />
+      </div>
+      <div class="input">
+      <input v-model="filial.empresa.codigo" placeholder="Empresa COD" />
+      </div>
+      <div class="input">
+      <input v-model="filial.empresa.descricao" placeholder="Empresa Descricao" />
       </div>
       <h3>
-        <a v-if="create" href="#" @click="addEmpresa">Adicionar Empresa</a>
-        <a v-if="edit" href="#" @click="editEmpresa">Atualizar Empresa</a> 
+        <a v-if="create" href="#" @click="addFilial">Adicionar Filial</a>
+        <a v-if="edit" href="#" @click="editFilial">Atualizar Filial</a> 
       </h3>
     </div>
   </div>
@@ -24,52 +36,69 @@ import apolloClient from '../providers/graphql'
 import gql from 'graphql-tag'
 
 export default {
-  name: 'Empresas',
+  name: 'Filiais',
   data: function() {
     return {
       create: true,
       edit: false,
-      empresas: [],
-      empresa: {
+      filiais: [],
+      filial: {
         id: '',
         codigo: '',
+        cnpj: '',
         descricao: '',
-        ativo: ''
+        ativo: '',
+        empresa: {
+            id: '',
+            codigo: '',
+            descricao: '',
+            ativo: ''
+        }
       }
     }
   },
   mounted() {
-    this.getEmpresas()
+    this.getFiliais()
   },
   methods: {
-    async getEmpresas() {
+    async getFiliais() {
       const res = await apolloClient.query({
         query: gql`
-          query getEmpresas {
-            empresas {
-              id
-              codigo
-              descricao
-              ativo
+          query getFilial {
+            filiais {
+                id
+                codigo
+                descricao
+                cnpj
+                empresa{
+                    id
+                    descricao
+                }
+                ativo
             }
-          }
+        }
         `
       })
-      this.empresas = res.data.empresas
+      this.filiais = res.data.filiais
     },
-    async deleteEmpresa(empresa) {
+    async deleteFilial(filial) {
       const res = await apolloClient.mutate({
         mutation: gql`
-          mutation updateEmpresa($id: ID!, $descricao: String!, $codigo: Int!) {
-            updateEmpresa(id: $id, input: {
+          mutation updateFilial($id: ID!, $descricao: String!, $codigo: Int!, $cnpj: String!, $empresa: ID!) {
+            updateFilial(id: $id, input: {
               descricao: $descricao
+              cnpj: $cnpj
               codigo: $codigo
+              empresa: [{
+                  id: $empresa 
+              }]
               ativo: false
               }) {
               ok
-              empresa{
+              filial{
                 id
                 descricao
+                cnpj
                 codigo
                 ativo
               }
@@ -77,22 +106,24 @@ export default {
           }
         `,
         variables: {
-          id: empresa.id,
-          descricao: empresa.descricao,
-          codigo: empresa.codigo
+          id: filial.id,
+          codigo: filial.codigo,
+          descricao: filial.descricao,
+          cnpj: filial.cnpj,
+          empresa: filial.empresa.id
         }
       })
-      const index = this.empresas.findIndex((element)=>{
-        return element.id == empresa.id ? true : false
+      const index = this.filiais.findIndex((element)=>{
+        return element.id == filial.id ? true : false
       })
-      this.empresas.splice(index, 1)
+      this.filiais.splice(index, 1)
     },
-    loadFormEmpresa(empresa) {
-      this.empresa = empresa
+    loadFormFilial(filial) {
+      this.filial = filial
       this.create = false
       this.edit = true
     },
-    async editEmpresa() {
+    async editFilial() {
       const res = await apolloClient.mutate({
         mutation: gql`
           mutation updateEmpresa($id: ID!, $descricao: String!, $codigo: Int!, $ativo: Boolean!) {
@@ -119,30 +150,45 @@ export default {
         }
       })
     },
-    async addEmpresa() {
+    async addFilial() {
       const res = await apolloClient.mutate({
         mutation: gql`
-          mutation createEmpresa($descricao: String!, $codigo: Int!) {
-            createEmpresa(input: {
-              codigo: $codigo
-              descricao: $descricao
-            }) {
-              ok
-              empresa {
-                codigo
-                descricao
-              }
+            mutation createFilial($descricao: String!, $codigo: Int!, $cnpj: String!, $empresa: ID!) {
+                createFilial(input: {
+                    codigo: $codigo,
+                    descricao: $descricao,
+                    cnpj: $cnpj,
+                    empresa: [{
+                        id: $empresa
+                    }]
+                }) {
+                    ok
+                    filial {
+                        id
+                        codigo
+                        cnpj
+                        descricao
+                        empresa{
+                            descricao
+                        }
+                    }
+                }
             }
-          }
         `,
         variables: {
-          codigo: this.empresa.codigo,
-          descricao: this.empresa.descricao
+          codigo: this.filial.codigo,
+          descricao: this.filial.descricao,
+          cnpj: this.filial.cnpj,
+          empresa: this.filial.empresa.id
         }
       })
-      this.empresas.push(res.data.createEmpresa.empresa) 
-      this.empresa.codigo = null
-      this.empresa.descricao = null
+      this.filiais.push(res.data.createFilial.filial) 
+      this.filiais.codigo = null
+      this.filiais.descricao = null
+      this.filiais.cnpj = null
+      this.filiais.empresa.id = null
+      this.filiais.empresa.codigo = null
+      this.filiais.empresa.descricao = null
     }
   }
 }
@@ -150,7 +196,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.listFilial {
+.list-filial {
   width: 100%;
   margin: 5px;
 }
@@ -158,7 +204,7 @@ export default {
   margin:5px;
 }
 
-.addFilial {
+.add-filial {
   width: 100%;
   margin: 10px;
   border: 1px solid #000;
