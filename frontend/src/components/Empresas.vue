@@ -5,8 +5,12 @@
     </div>
 
     <div class="addEmpresa">
+      <div class="input">
       <input v-model="empresa.codigo" placeholder="Código" />
+      </div>
+      <div class="input">
       <input v-model="empresa.descricao" placeholder="Descrição" />
+      </div>
       <h3>
         <a v-if="create" href="#" @click="addEmpresa">Adicionar Empresa</a>
         <a v-if="edit" href="#" @click="editEmpresa">Atualizar Empresa</a> 
@@ -78,10 +82,10 @@ export default {
           codigo: empresa.codigo
         }
       })
-      const index = this.empresas.find((element, index)=>{
-        return element.id == empresa.id ? index : false
+      const index = this.empresas.findIndex((element)=>{
+        return element.id == empresa.id ? true : false
       })
-      this.empresas.pop(index)
+      this.empresas.splice(index, 1)
     },
     loadFormEmpresa(empresa) {
       this.empresa = empresa
@@ -149,6 +153,9 @@ export default {
 .listEmpresa {
   width: 100%;
   margin: 5px;
+}
+.input{
+  margin:5px;
 }
 .addEmpresa {
   width: 100%;
