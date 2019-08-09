@@ -129,6 +129,7 @@ export default {
             }) {
               ok
               empresa {
+                id
                 codigo
                 descricao
               }
